@@ -1,0 +1,29 @@
+services:
+  fpm:
+    image: laravel-api/fpm:0.1.0
+    build:
+      context: .
+      dockerfile: .docker/fpm/Dockerfile
+      target: dev
+    command: "php artisan serve --host 0.0.0.0"
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - "8000:8000"
+  mysql:
+    image: 'mysql:8.0'
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_DATABASE: 'local'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+      - ./.docker/mysql:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-ppassword" ]
+      retries: 3
+      timeout: 5s
